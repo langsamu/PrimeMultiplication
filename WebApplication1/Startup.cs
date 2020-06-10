@@ -27,6 +27,8 @@ namespace WebApplication1
                 app.UseDeveloperExceptionPage();
             }
 
+            app.UseExceptionHandler("/error");
+
             app.UseRouting();
 
             app.UseAuthorization();

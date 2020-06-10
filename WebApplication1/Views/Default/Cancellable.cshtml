@@ -1,0 +1,91 @@
+﻿@model IAsyncEnumerable<int>;
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <meta name="viewport" content="width=device-width" />
+    <style>
+        html {
+            font-size: 50px;
+        }
+
+        body {
+            margin: 0;
+        }
+
+        table {
+            border-collapse: collapse;
+            text-align: center;
+        }
+
+        tr:nth-child(even) td {
+            background-color: rgba(0, 0, 0, 0.2);
+        }
+
+        td, th {
+            padding: 10px 20px;
+            background-color: white;
+        }
+
+        th {
+            filter: invert(1);
+            position: sticky;
+        }
+
+        thead th {
+            top: 0;
+        }
+
+        tbody th {
+            left: 0;
+        }
+    </style>
+</head>
+<body>
+    <table>
+        <thead>
+            @{ await WriteRow(); }
+        </thead>
+        <tbody>
+            @await foreach (var prime in this.Model)
+            {
+                await WriteRow(prime);
+            }
+        </tbody>
+    </table>
+</body>
+</html>
+
+@{
+    async Task WriteRow(int? rowHeader = null)
+    {
+        <tr>
+            @{
+                WriteHeader(rowHeader);
+
+                await foreach (var prime in this.Model)
+                {
+                    if (rowHeader is null)
+                    {
+                        WriteHeader(prime);
+                    }
+                    else
+                    {
+                        WriteCell(prime, rowHeader);
+                    }
+                }
+            }
+        </tr>
+    }
+
+    void WriteHeader(int? prime = null)
+    {
+        <th>@prime</th>
+    }
+
+    void WriteCell(int prime1, int? prime2)
+    {
+        <td>@(prime1 * prime2)</td>
+    }
+}

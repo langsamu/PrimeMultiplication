@@ -3,6 +3,8 @@ namespace UnitTestProject1
     using System;
     using System.Globalization;
     using System.Linq;
+    using System.Threading;
+    using System.Threading.Tasks;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
@@ -44,6 +46,44 @@ namespace UnitTestProject1
             void WriteCell(int? prime1 = null, int? prime2 = 1)
             {
                 Console.Write(format, prime1 * prime2);
+            }
+        }
+
+        [TestMethod]
+        public async Task ProofOfConceptAsync()
+        {
+            using var cts = new CancellationTokenSource(100);
+
+            const int n = 2000;
+
+            await Assert.ThrowsExceptionAsync<TaskCanceledException>(async () =>
+            {
+                // Header row
+                await WriteRow();
+
+                // Body
+                await foreach (var prime in n.PrimesAsync(cts.Token))
+                {
+                    await WriteRow(prime);
+                }
+            });
+
+            async Task WriteRow(int? rowHeader = null)
+            {
+                // Header column
+                WriteCell(rowHeader);
+
+                await foreach (var prime in n.PrimesAsync(cts.Token))
+                {
+                    WriteCell(prime, rowHeader ?? 1);
+                }
+
+                Console.WriteLine(); // LF
+            }
+
+            void WriteCell(int? prime1 = null, int? prime2 = 1)
+            {
+                Console.Write("{0, 10}", prime1 * prime2);
             }
         }
     }

@@ -1,6 +1,9 @@
 ﻿namespace UnitTestProject1
 {
     using System.Collections.Generic;
+    using System.Runtime.CompilerServices;
+    using System.Threading;
+    using System.Threading.Tasks;
 
     internal static class Extensions
     {
@@ -17,6 +20,26 @@
                 }
 
                 yield return n;
+            }
+        }
+
+        internal static async IAsyncEnumerable<int> PrimesAsync(this int count, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+        {
+            var n = 1; // will start at two anyway
+
+            // Decrement count until zero
+            while (count-- > 0)
+            {
+                await Task.Run(IncrementUntilPrime, cancellationToken);
+
+                yield return n;
+            }
+
+            void IncrementUntilPrime()
+            {
+                while (!(++n).IsPrime())
+                {
+                }
             }
         }
 
