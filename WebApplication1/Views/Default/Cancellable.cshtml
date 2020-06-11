@@ -1,4 +1,4 @@
-﻿@model IAsyncEnumerable<int>;
+﻿@model (ClassLibrary1.PrimeGenerator Generator, System.Threading.CancellationToken Timeout, int N);
 
 <!DOCTYPE html>
 <html>
@@ -48,9 +48,13 @@
             @{ await WriteRow(); }
         </thead>
         <tbody>
-            @await foreach (var prime in this.Model)
-            {
-                await WriteRow(prime);
+            @{
+                await using var primes = this.Model.Generator.WithCancellation(this.Model.Timeout).GetAsyncEnumerator();
+
+                for (var i = 0; i < this.Model.N && await primes.MoveNextAsync(); i++)
+                {
+                    await WriteRow(primes.Current);
+                }
             }
         </tbody>
     </table>
@@ -64,15 +68,17 @@
             @{
                 WriteHeader(rowHeader);
 
-                await foreach (var prime in this.Model)
+                await using var primes = this.Model.Generator.WithCancellation(this.Model.Timeout).GetAsyncEnumerator();
+
+                for (var i = 0; i < this.Model.N && await primes.MoveNextAsync(); i++)
                 {
                     if (rowHeader is null)
                     {
-                        WriteHeader(prime);
+                        WriteHeader(primes.Current);
                     }
                     else
                     {
-                        WriteCell(prime, rowHeader);
+                        WriteCell(primes.Current, rowHeader);
                     }
                 }
             }
