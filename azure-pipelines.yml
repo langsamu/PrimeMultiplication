@@ -1,0 +1,47 @@
+trigger:
+- master
+
+pool:
+  vmImage: windows-latest
+
+variables:
+  BuildConfiguration: Release
+  TestProjects: 'UnitTestProject1/UnitTestProject1.csproj'
+
+steps:
+- task: DotNetCoreCLI@2
+  displayName: Restore
+  inputs:
+    command: restore
+
+- task: DotNetCoreCLI@2
+  displayName: Install Coverlet
+  inputs:
+    command: custom
+    custom: add
+    projects: $(TestProjects)
+    arguments: package coverlet.msbuild
+
+- task: DotNetCoreCLI@2
+  displayName: Build
+  inputs:
+    command: build
+    arguments: --configuration $(BuildConfiguration) --no-restore
+
+- task: DotNetCoreCLI@2
+  displayName: Test
+  inputs:
+    command: test
+    arguments: --configuration $(BuildConfiguration) --no-build /p:CollectCoverage=true /p:CoverletOutput=TestResults/ /p:CoverletOutputFormat=cobertura
+
+- task: PublishCodeCoverageResults@1
+  displayName: Publish code coverage
+  inputs:
+    codeCoverageTool: cobertura
+    summaryFileLocation: $(System.DefaultWorkingDirectory)/**/coverage.cobertura.xml
+
+- task: Bash@3
+  displayName: Upload to Codecov
+  inputs:
+    targetType: inline
+    script: bash <(curl -s https://codecov.io/bash)
