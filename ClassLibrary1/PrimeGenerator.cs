@@ -12,10 +12,10 @@
             this.options = options;
 
         public IAsyncEnumerator<int> GetAsyncEnumerator(CancellationToken cancellationToken = default) =>
-            new PrimeAsyncEnumerator(this.options, cancellationToken);
+            new AsyncEnumerator(this.options, cancellationToken);
 
         public IEnumerator<int> GetEnumerator() =>
-            new PrimeEnumerator(new PrimeAsyncEnumerator());
+            new Enumerator(new AsyncEnumerator());
 
         IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
     }

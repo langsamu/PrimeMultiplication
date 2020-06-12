@@ -27,21 +27,16 @@
 
         private IActionResult CancellableInternal(PrimeGeneratorOptions options, int thisMany, CancellationToken cancellationToken)
         {
-            var timeoutCancellation = new CancellationTokenSource(timeout);
             var linkedCancellation = CancellationTokenSource.CreateLinkedTokenSource(
                 cancellationToken,
-                timeoutCancellation.Token,
+                new CancellationTokenSource(timeout).Token,
                 this.HttpContext.RequestAborted);
 
             this.Response.RegisterForDispose(linkedCancellation);
 
-            var model = (
-                Generator: new PrimeGenerator(options),
-                Timeout: linkedCancellation.Token,
-                N: thisMany
-            );
+            var table = MultiplicationTable.GenerateAsync(thisMany, linkedCancellation.Token, options);
 
-            return this.View("Cancellable", model);
+            return this.View("Cancellable", table);
         }
 
         [HttpGet("error")]

@@ -7,14 +7,14 @@
 
     public sealed partial class PrimeGenerator
     {
-        private sealed class PrimeAsyncEnumerator : IAsyncEnumerator<int>
+        private sealed class AsyncEnumerator : IAsyncEnumerator<int>
         {
             private const int notInitialised = 1;
             private readonly PrimeGeneratorOptions options;
             private readonly CancellationToken cancellationToken;
             private int current = notInitialised;
 
-            internal PrimeAsyncEnumerator(PrimeGeneratorOptions options = PrimeGeneratorOptions.None, CancellationToken cancellationToken = default)
+            internal AsyncEnumerator(PrimeGeneratorOptions options = PrimeGeneratorOptions.None, CancellationToken cancellationToken = default)
             {
                 this.options = options;
                 this.cancellationToken = cancellationToken;

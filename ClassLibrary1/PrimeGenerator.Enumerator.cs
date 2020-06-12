@@ -6,11 +6,11 @@
 
     public sealed partial class PrimeGenerator
     {
-        private sealed class PrimeEnumerator : IEnumerator<int>
+        private sealed class Enumerator : IEnumerator<int>
         {
             private readonly IAsyncEnumerator<int> primeAsyncEnumerator;
 
-            internal PrimeEnumerator(PrimeAsyncEnumerator primeAsyncEnumerator) =>
+            internal Enumerator(AsyncEnumerator primeAsyncEnumerator) =>
                 this.primeAsyncEnumerator = primeAsyncEnumerator;
 
             public int Current =>

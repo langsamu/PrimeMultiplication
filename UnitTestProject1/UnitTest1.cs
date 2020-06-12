@@ -1,6 +1,7 @@
 namespace UnitTestProject1
 {
     using System;
+    using System.Collections.Generic;
     using System.Globalization;
     using System.Linq;
     using System.Threading;
@@ -54,72 +55,33 @@ namespace UnitTestProject1
         public async Task ProofOfConceptAsync()
         {
             using var cts = new CancellationTokenSource(100);
-
-            var generator = new PrimeGenerator(PrimeGeneratorOptions.ThrowOnCancel).WithCancellation(cts.Token);
+            var table = MultiplicationTable.GenerateAsync(1000, cts.Token, PrimeGeneratorOptions.ThrowOnCancel);
 
             await Assert.ThrowsExceptionAsync<OperationCanceledException>(async () =>
             {
-                // Header row
-                await WriteRow();
-
-                // Body
-                await foreach (var prime in generator)
-                {
-                    await WriteRow(prime);
-                }
+                await Write(table);
             });
-
-            async Task WriteRow(int? rowHeader = null)
-            {
-                // Header column
-                WriteCell(rowHeader);
-
-                await foreach (var prime in generator)
-                {
-                    WriteCell(prime, rowHeader ?? 1);
-                }
-
-                Console.WriteLine(); // LF
-            }
-
-            void WriteCell(int? prime1 = null, int? prime2 = 1)
-            {
-                Console.Write("{0, 10}", prime1 * prime2);
-            }
         }
 
         [TestMethod]
         public async Task ProofOfConceptAsyncDontThrow()
         {
             using var cts = new CancellationTokenSource(100);
+            var table = MultiplicationTable.GenerateAsync(1000, cts.Token);
 
-            var generator = new PrimeGenerator().WithCancellation(cts.Token);
+            await Write(table);
+        }
 
-            // Header row
-            await WriteRow();
-
-            // Body
-            await foreach (var prime in generator)
+        private static async Task Write(IAsyncEnumerable<IAsyncEnumerable<int?>> table)
+        {
+            await foreach (var row in table)
             {
-                await WriteRow(prime);
-            }
-
-            async Task WriteRow(int? rowHeader = null)
-            {
-                // Header column
-                WriteCell(rowHeader);
-
-                await foreach (var prime in generator)
+                await foreach (var cell in row)
                 {
-                    WriteCell(prime, rowHeader ?? 1);
+                    Console.Write("{0, 10}", cell);
                 }
 
                 Console.WriteLine(); // LF
-            }
-
-            void WriteCell(int? prime1 = null, int? prime2 = 1)
-            {
-                Console.Write("{0, 10}", prime1 * prime2);
             }
         }
     }
