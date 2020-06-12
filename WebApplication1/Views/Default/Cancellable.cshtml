@@ -1,4 +1,4 @@
-﻿@model IAsyncEnumerable<IAsyncEnumerable<int?>>
+﻿@model (IAsyncEnumerable<IAsyncEnumerable<int?>> Table, System.Threading.CancellationToken Timeout)
 
 <!DOCTYPE html>
 <html>
@@ -38,14 +38,14 @@
             top: 0;
         }
 
-        tr::not(:first-child) td {
+        tr:not(:first-child) td {
             left: 0;
         }
     </style>
 </head>
 <body>
     <table>
-        @await foreach (var row in this.Model)
+        @await foreach (var row in this.Model.Table.WithCancellation(this.Model.Timeout))
         {
             <tr>
                 @await foreach (var cell in row)

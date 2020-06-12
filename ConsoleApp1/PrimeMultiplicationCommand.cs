@@ -40,9 +40,9 @@
                 PrimeGeneratorOptions.ThrowOnCancel :
                 PrimeGeneratorOptions.None;
 
-            var table = MultiplicationTable.GenerateAsync(size, cancellationToken, options);
+            var table = new MultiplicationTable(size, options);
 
-            await foreach (var row in table)
+            await foreach (var row in table.WithCancellation(cancellationToken))
             {
                 await foreach (var cell in row)
                 {

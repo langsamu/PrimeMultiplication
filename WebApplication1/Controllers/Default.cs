@@ -1,7 +1,6 @@
 ﻿namespace WebApplication1.Controllers
 {
     using System;
-    using System.Linq;
     using System.Threading;
     using ClassLibrary1;
     using Microsoft.AspNetCore.Diagnostics;
@@ -12,10 +11,6 @@
     public class Default : Controller
     {
         private const int timeout = 1000;
-
-        [HttpGet("{thisMany}")]
-        public IActionResult Index(int thisMany) =>
-            this.View(new PrimeGenerator().Take(thisMany));
 
         [HttpGet("async/{thisMany}")]
         public IActionResult Cancellable(int thisMany, CancellationToken cancellationToken) =>
@@ -34,9 +29,9 @@
 
             this.Response.RegisterForDispose(linkedCancellation);
 
-            var table = MultiplicationTable.GenerateAsync(thisMany, linkedCancellation.Token, options);
+            var table = new MultiplicationTable(thisMany, options);
 
-            return this.View("Cancellable", table);
+            return this.View("Cancellable", (table, linkedCancellation.Token));
         }
 
         [HttpGet("error")]
