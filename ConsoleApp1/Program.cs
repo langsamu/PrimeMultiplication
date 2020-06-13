@@ -3,9 +3,9 @@
     using System.CommandLine;
     using System.Threading.Tasks;
 
-    internal class Program
+    public static class Program
     {
-        private static async Task Main(string[] args) =>
+        public static async Task Main(string[] args) =>
             await new PrimeMultiplicationCommand().InvokeAsync(args);
     }
 }

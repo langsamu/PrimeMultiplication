@@ -17,6 +17,7 @@
         public IEnumerator<int> GetEnumerator() =>
             new Enumerator(new AsyncEnumerator());
 
-        IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() =>
+            this.GetEnumerator();
     }
 }

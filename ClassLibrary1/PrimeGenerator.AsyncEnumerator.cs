@@ -63,6 +63,7 @@
                 {
                     if (this.ShouldStop)
                     {
+                        this.current = notInitialised;
                         return new ValueTask<bool>(false);
                     }
 
