@@ -1,4 +1,4 @@
-﻿namespace WebApplication1.Controllers
+﻿namespace WebApplication1
 {
     using System;
     using System.Linq;
@@ -8,8 +8,7 @@
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.AspNetCore.Routing;
 
-    [Route("")]
-    public class Default : Controller
+    public class DefaultController : Controller
     {
         private const int timeout = 1000;
 
@@ -46,7 +45,7 @@
 
             if (handler.Path.StartsWith("/async/") && handler.Error is OperationCanceledException)
             {
-                return this.BadRequest($"Couldn't generate {handler.Path[7..]} primes in {timeout}ms. Try less.");
+                return this.BadRequest($"Could not generate {handler.Path[7..]} primes in {timeout}ms. Try less.");
             }
             else
             {
