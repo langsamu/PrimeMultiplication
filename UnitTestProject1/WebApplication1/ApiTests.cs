@@ -1,16 +1,19 @@
 ﻿namespace UnitTestProject1.WebApplication1
 {
+    using System;
     using System.Net;
     using System.Net.Http;
     using System.Net.Http.Headers;
+    using System.Text.Json;
     using System.Threading.Tasks;
     using FluentAssertions;
+    using FluentAssertions.Extensions;
     using global::WebApplication1;
     using Microsoft.AspNetCore.Mvc.Testing;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
-    public class WebTests
+    public class ApiTests
     {
         private static WebApplicationFactory<Startup> factory;
         private static HttpClient client;
@@ -30,6 +33,33 @@
         }
 
         [TestMethod]
+        public async Task Multiplies_primes()
+        {
+            var expected = new[] {
+                new int?[] { null,  2,  3,   5 },
+                new int?[] {    2,  4,  6,  10 },
+                new int?[] {    3,  6,  9 , 15 },
+                new int?[] {    5, 10, 15 , 25 },
+            };
+
+            using var response = await client.GetStreamAsync("/api?count=3");
+            var actual = await JsonSerializer.DeserializeAsync<int?[][]>(response);
+
+            actual.Should().BeEquivalentTo(expected);
+        }
+
+        [TestMethod]
+        public void Can_be_cancelled()
+        {
+            Func<Task> enumerateWithTimeout = async () =>
+            {
+                await client.GetStringAsync("/api?count=1000&timeout=1000");
+            };
+
+            enumerateWithTimeout.ExecutionTime().Should().BeCloseTo(1.Seconds(), 0.5.Seconds());
+        }
+
+        [TestMethod]
         [DataRow("/api")]
         [DataRow("/api?count")]
         [DataRow("/api?count=")]
@@ -37,9 +67,6 @@
         [DataRow("/api?count=0")]
         [DataRow("/api?count=1&timeout=0")]
         [DataRow("/api?count=1&timeout=NOTANUMBER")]
-        [DataRow("/api?count=1&timeout=1&throwOnCancel")]
-        [DataRow("/api?count=1&timeout=1&throwOnCancel=")]
-        [DataRow("/api?count=1&timeout=1&throwOnCancel=NOTABOOL")]
         public async Task Validates_parameters(string pathAndQuery)
         {
             var response = await client.GetAsync(pathAndQuery);
@@ -70,24 +97,6 @@
 
             using var response = await client.SendAsync(request);
             response.Content.Headers.ContentType.MediaType.Should().BeEquivalentTo(mediaType);
-        }
-
-        [TestMethod]
-        [DataRow("xml")]
-        [DataRow("json")]
-        [DataRow("csv")]
-        public async Task Can_fail_ubruptly(string extension)
-        {
-            var pathAndQuery = $"/api.{extension}?count=1000&timeout=1&throwOnCancel=true";
-            using var request = new HttpRequestMessage(HttpMethod.Get, pathAndQuery);
-
-            try
-            {
-                using var response = await client.SendAsync(request);
-            }
-            catch (HttpRequestException)
-            {
-            }
         }
     }
 }

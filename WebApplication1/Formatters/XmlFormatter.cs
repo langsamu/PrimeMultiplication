@@ -8,6 +8,7 @@
     using System.Threading.Tasks;
     using System.Xml;
     using ClassLibrary1;
+    using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc.Formatters;
     using Microsoft.Net.Http.Headers;
 
@@ -22,30 +23,21 @@
         {
             using var writer = XmlWriter.Create(context.WriterFactory(context.HttpContext.Response.Body, encoding), new XmlWriterSettings { Async = true });
 
-            try
+            await writer.WriteStartElementAsync(null, "table", null);
+
+            await foreach (var row in table.WithCancellation(cancellationToken))
             {
-                await writer.WriteStartElementAsync(null, "table", null);
+                await writer.WriteStartElementAsync(null, "row", null);
 
-                await foreach (var row in table.WithCancellation(cancellationToken))
+                await foreach (var cell in row)
                 {
-                    await writer.WriteStartElementAsync(null, "row", null);
-
-                    await foreach (var cell in row)
-                    {
-                        await writer.WriteElementStringAsync(null, "cell", null, cell.ToString());
-                    }
-
-                    await writer.WriteEndElementAsync();
+                    await writer.WriteElementStringAsync(null, "cell", null, cell.ToString());
                 }
 
                 await writer.WriteEndElementAsync();
             }
-            catch (OperationCanceledException)
-            {
-                await writer.WriteProcessingInstructionAsync("error", "Could not multiply primes in time limit. Try less.");
 
-                context.HttpContext.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-            }
+            await writer.WriteEndElementAsync();
 
             await writer.FlushAsync();
         }

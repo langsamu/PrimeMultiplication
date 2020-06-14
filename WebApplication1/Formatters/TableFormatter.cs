@@ -20,15 +20,11 @@
         {
             var data = (ApiParameters)context.Object;
 
-            var options = data.ThrowOnCancel ?
-                PrimeGeneratorOptions.ThrowOnCancel :
-                PrimeGeneratorOptions.None;
-
-            var table = new MultiplicationTable(data.Count, options);
+            var table = new MultiplicationTable(data.Count);
 
             var cancellationToken =
                CancellationTokenSource.CreateLinkedTokenSource(
-                   data.cancellationToken,
+                   data.CancellationToken,
                    context.HttpContext.RequestAborted).Token;
 
             if (data.Timeout.HasValue)

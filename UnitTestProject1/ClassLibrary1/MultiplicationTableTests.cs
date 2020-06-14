@@ -18,18 +18,18 @@ namespace UnitTestProject1.ClassLibrary1
                 {    5, 10, 15 , 25 },
             };
 
-            var size = 4;
-            var actual = new int?[size, size];
+            var count = 3;
+            var actual = new int?[count+1, count+1];
 
-            await using var table = new MultiplicationTable(10).GetAsyncEnumerator();
+            await using var table = new MultiplicationTable(count ).GetAsyncEnumerator();
 
-            for (var y = 0; y < size && await table.MoveNextAsync(); y++)
+            for (var rowNumber = 0; rowNumber <= count && await table.MoveNextAsync(); rowNumber++)
             {
                 await using var row = table.Current.GetAsyncEnumerator();
 
-                for (var x = 0; x < size && await row.MoveNextAsync(); x++)
+                for (var cellNumber = 0; cellNumber <= count && await row.MoveNextAsync(); cellNumber++)
                 {
-                    actual[y, x] = row.Current;
+                    actual[rowNumber, cellNumber] = row.Current;
                 }
             }
 

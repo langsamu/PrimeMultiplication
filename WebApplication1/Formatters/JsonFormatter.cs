@@ -1,7 +1,5 @@
 ﻿namespace WebApplication1
 {
-    using System;
-    using System.Net;
     using System.Net.Mime;
     using System.Text;
     using System.Text.Json;
@@ -22,40 +20,28 @@
         {
             using var writer = new Utf8JsonWriter(context.HttpContext.Response.Body);
 
-            try
+            writer.WriteStartArray();
+
+            await foreach (var row in table.WithCancellation(cancellationToken))
             {
                 writer.WriteStartArray();
 
-                await foreach (var row in table.WithCancellation(cancellationToken))
+                await foreach (var cell in row)
                 {
-                    writer.WriteStartArray();
-
-                    await foreach (var cell in row)
+                    if (cell.HasValue)
                     {
-                        if (cell.HasValue)
-                        {
-                            writer.WriteNumberValue(cell.Value);
-                        }
-                        else
-                        {
-                            writer.WriteNullValue();
-                        }
+                        writer.WriteNumberValue(cell.Value);
                     }
-
-                    writer.WriteEndArray();
+                    else
+                    {
+                        writer.WriteNullValue();
+                    }
                 }
 
                 writer.WriteEndArray();
             }
-            catch (OperationCanceledException)
-            {
-                writer.WriteStartObject();
-                writer.WriteString("error", "Could not multiply primes in time limit. Try less.");
-                writer.WriteEndObject();
 
-                context.HttpContext.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-            }
-
+            writer.WriteEndArray();
             await writer.FlushAsync();
         }
     }

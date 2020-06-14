@@ -1,56 +1,55 @@
 ﻿namespace WebApplication1
 {
-    using System;
-    using System.Linq;
     using System.Threading;
     using ClassLibrary1;
-    using Microsoft.AspNetCore.Diagnostics;
     using Microsoft.AspNetCore.Mvc;
-    using Microsoft.AspNetCore.Routing;
 
+    [Route("multiply")]
     public class DefaultController : Controller
     {
-        private const int timeout = 1000;
+        [HttpGet("{count}")]
+        [HttpGet("{count}/stop-after/{timeout}")]
+        public IActionResult Default(UiParameters parameters) =>
+            this.View(parameters);
 
-        [HttpGet("{thisMany}")]
-        public IActionResult Index(int thisMany) =>
-            this.View(new PrimeGenerator().Take(thisMany));
-
-        [HttpGet("async/{thisMany}")]
-        public IActionResult Cancellable(int thisMany, CancellationToken cancellationToken) =>
-            this.CancellableInternal(PrimeGeneratorOptions.ThrowOnCancel, thisMany, cancellationToken);
-
-        [HttpGet("graceful-async/{thisMany}")]
-        public IActionResult CancellableGraceful(int thisMany, CancellationToken cancellationToken) =>
-            this.CancellableInternal(PrimeGeneratorOptions.None, thisMany, cancellationToken);
-
-        private IActionResult CancellableInternal(PrimeGeneratorOptions options, int thisMany, CancellationToken cancellationToken)
+        [HttpGet("{count}/fail-after/{timeout}")]
+        public IActionResult AbruptTimeout(UiParameters parameters)
         {
-            var linkedCancellation = CancellationTokenSource.CreateLinkedTokenSource(
-                cancellationToken,
-                new CancellationTokenSource(timeout).Token,
-                this.HttpContext.RequestAborted);
-
-            this.Response.RegisterForDispose(linkedCancellation);
-
-            var table = new MultiplicationTable(thisMany, options);
-
-            return this.View("Cancellable", (table, linkedCancellation.Token));
+            parameters.ThrowOnCancel = true;
+            return this.View(parameters);
         }
 
-        [HttpGet("error")]
-        public IActionResult Error()
+        private IActionResult View(UiParameters parameters)
         {
-            var handler = this.HttpContext.Features.Get<IExceptionHandlerPathFeature>();
+            if (!this.ModelState.IsValid)
+            {
+                return this.BadRequest(this.ModelState);
+            }
 
-            if (handler.Path.StartsWith("/async/") && handler.Error is OperationCanceledException)
+            var options = PrimeGeneratorOptions.None;
+            if (parameters.ThrowOnCancel)
             {
-                return this.BadRequest($"Could not generate {handler.Path[7..]} primes in {timeout}ms. Try less.");
+                options = PrimeGeneratorOptions.ThrowOnCancel;
             }
-            else
+
+            if (parameters.Timeout.HasValue)
             {
-                throw handler.Error;
+                var tokenSource =
+                    CancellationTokenSource.CreateLinkedTokenSource(
+                        parameters.CancellationToken,
+                        new CancellationTokenSource(parameters.Timeout.Value).Token,
+                        this.HttpContext.RequestAborted);
+
+                this.Response.RegisterForDispose(tokenSource);
+
+                parameters.CancellationToken = tokenSource.Token;
             }
+
+            var model = (
+                Table: new MultiplicationTable(parameters.Count, options),
+                Timeout: parameters.CancellationToken);
+
+            return this.View("Index", model);
         }
     }
 }

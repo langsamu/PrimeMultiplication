@@ -1,7 +1,5 @@
 ﻿namespace WebApplication1
 {
-    using System;
-    using System.Net;
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
@@ -20,29 +18,20 @@
         {
             using var writer = context.WriterFactory(context.HttpContext.Response.Body, encoding);
 
-            try
+            await foreach (var row in table.WithCancellation(cancellationToken))
             {
-                await foreach (var row in table.WithCancellation(cancellationToken))
+                var fieldNumber = 0;
+                await foreach (var cell in row)
                 {
-                    var fieldNumber = 0;
-                    await foreach (var cell in row)
+                    if (fieldNumber++ > 0)
                     {
-                        if (fieldNumber++ > 0)
-                        {
-                            await writer.WriteAsync(",");
-                        }
-
-                        await writer.WriteAsync(cell?.ToString());
+                        await writer.WriteAsync(",");
                     }
 
-                    await writer.WriteLineAsync();
+                    await writer.WriteAsync(cell?.ToString());
                 }
-            }
-            catch (OperationCanceledException)
-            {
-                await writer.WriteAsync("# Could not multiply primes in time limit. Try less.");
 
-                context.HttpContext.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                await writer.WriteLineAsync();
             }
 
             await writer.FlushAsync();

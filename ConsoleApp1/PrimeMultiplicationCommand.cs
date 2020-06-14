@@ -14,7 +14,7 @@
             this.Description = "Generates a prime multiplication table of <size> optionally within <timeout>";
             this.Handler = CommandHandler.Create<int, int?, bool, IConsole, CancellationToken>(this.ExecuteAsync);
 
-            var countArgument = new Argument<int>("size", "Number of columns and rows");
+            var countArgument = new Argument<int>("count", "Number of columns and rows");
             this.AddArgument(countArgument);
 
             var timeoutOption = new Option<int?>("--timeout", "Time limit in milliseconds");
@@ -26,7 +26,7 @@
             this.AddOption(throwOption);
         }
 
-        private async Task ExecuteAsync(int size, int? timeout, bool throwOnCancel, IConsole console, CancellationToken cancellationToken)
+        private async Task ExecuteAsync(int count, int? timeout, bool throwOnCancel, IConsole console, CancellationToken cancellationToken)
         {
             if (timeout.HasValue)
             {
@@ -40,7 +40,7 @@
                 PrimeGeneratorOptions.ThrowOnCancel :
                 PrimeGeneratorOptions.None;
 
-            var table = new MultiplicationTable(size, options);
+            var table = new MultiplicationTable(count, options);
 
             await foreach (var row in table.WithCancellation(cancellationToken))
             {
