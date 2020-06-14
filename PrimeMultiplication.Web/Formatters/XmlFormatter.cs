@@ -1,16 +1,13 @@
 ﻿namespace PrimeMultiplication.Web
 {
-    using System;
-    using System.Net;
     using System.Net.Mime;
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
     using System.Xml;
-    using PrimeMultiplication;
-    using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc.Formatters;
     using Microsoft.Net.Http.Headers;
+    using PrimeMultiplication;
 
     internal class XmlFormatter : TableFormatter
     {

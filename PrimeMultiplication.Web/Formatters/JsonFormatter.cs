@@ -5,9 +5,9 @@
     using System.Text.Json;
     using System.Threading;
     using System.Threading.Tasks;
-    using PrimeMultiplication;
     using Microsoft.AspNetCore.Mvc.Formatters;
     using Microsoft.Net.Http.Headers;
+    using PrimeMultiplication;
 
     internal class JsonFormatter : TableFormatter
     {

@@ -2,9 +2,9 @@ namespace PrimeMultiplication.Tests.Library
 {
     using System;
     using System.Collections;
-    using PrimeMultiplication;
     using FluentAssertions;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using PrimeMultiplication;
 
     [TestClass]
     public class EnumeratorTests

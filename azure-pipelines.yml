@@ -6,7 +6,7 @@ pool:
 
 variables:
   BuildConfiguration: Release
-  TestProjects: 'UnitTestProject1/UnitTestProject1.csproj'
+  TestProjects: 'PrimeMultiplication.Tests/PrimeMultiplication.Tests.csproj'
 
 steps:
 - task: DotNetCoreCLI@2

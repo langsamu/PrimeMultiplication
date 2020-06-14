@@ -4,9 +4,9 @@
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
-    using PrimeMultiplication;
     using Microsoft.AspNetCore.Mvc.Formatters;
     using Microsoft.Net.Http.Headers;
+    using PrimeMultiplication;
 
     internal abstract class TableFormatter : TextOutputFormatter
     {

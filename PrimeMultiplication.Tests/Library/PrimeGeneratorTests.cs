@@ -5,10 +5,10 @@ namespace PrimeMultiplication.Tests.Library
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
-    using PrimeMultiplication;
     using FluentAssertions;
     using FluentAssertions.Extensions;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using PrimeMultiplication;
 
     [TestClass]
     public class PrimeGeneratorTests

@@ -1,9 +1,9 @@
 namespace PrimeMultiplication.Tests.Library
 {
     using System.Threading.Tasks;
-    using PrimeMultiplication;
     using FluentAssertions;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using PrimeMultiplication;
 
     [TestClass]
     public class MultiplicationTableTests

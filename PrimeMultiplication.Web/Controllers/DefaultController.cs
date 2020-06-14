@@ -1,8 +1,8 @@
 ﻿namespace PrimeMultiplication.Web
 {
     using System.Threading;
-    using PrimeMultiplication;
     using Microsoft.AspNetCore.Mvc;
+    using PrimeMultiplication;
 
     [Route("multiply")]
     public class DefaultController : Controller

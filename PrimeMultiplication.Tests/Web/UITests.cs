@@ -82,7 +82,7 @@
         [TestMethod]
         public async Task Can_throw_when_cancelled()
         {
-            using var response = await client.GetAsync("/multiply/1000/fail-after/1000");
+            using var response = await client.GetAsync("/multiply/1000/fail-after/1");
 
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         }
