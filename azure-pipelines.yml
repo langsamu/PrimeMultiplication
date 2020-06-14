@@ -6,7 +6,6 @@ pool:
 
 variables:
   BuildConfiguration: Release
-  TestProjects: 'PrimeMultiplication.Tests/PrimeMultiplication.Tests.csproj'
 
 steps:
 - task: DotNetCoreCLI@2
@@ -14,13 +13,22 @@ steps:
   inputs:
     command: restore
 
+# Needed to gather code coverage in a usable format
 - task: DotNetCoreCLI@2
   displayName: Install Coverlet
   inputs:
     command: custom
     custom: add
-    projects: $(TestProjects)
+    projects: PrimeMultiplication.Tests
     arguments: package coverlet.msbuild
+
+# No need to build
+- task: DotNetCoreCLI@2
+  displayName: Remove availability project
+  inputs:
+    command: custom
+    custom: sln
+    arguments: remove PrimeMultiplication.Availability
 
 - task: DotNetCoreCLI@2
   displayName: Build
@@ -45,3 +53,15 @@ steps:
   inputs:
     targetType: inline
     script: bash <(curl -s https://codecov.io/bash)
+
+- task: DotNetCoreCLI@2
+  displayName: Publish
+  inputs:
+    command: publish
+    publishWebProjects: false
+    projects: PrimeMultiplication.Web
+    arguments: --configuration $(BuildConfiguration) --output $(build.ArtifactStagingDirectory)
+    zipAfterPublish: True
+
+- task: PublishBuildArtifacts@1
+  displayName: Publish build

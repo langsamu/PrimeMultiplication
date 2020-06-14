@@ -7,6 +7,8 @@ This folder contains a WebTest project.
 ## Monitoring results
 Available [on the Azure portal](https://portal.azure.com/#resource/subscriptions/d40c53cc-9981-4d98-a471-35df02d0bdc7/resourceGroups/PrimeMultiplication/providers/microsoft.insights/components/PrimeMultiplication/availability) (requires login).
 
+When site is unavailable, notification emails are sent to [this](https://www.mailinator.com/v3/index.jsp?query=avastprimemultiplication) (unmoderated Mailinator) inbox.
+
 ## Monitored requests
 The test contains the following requests:
 - API multiplies primes
