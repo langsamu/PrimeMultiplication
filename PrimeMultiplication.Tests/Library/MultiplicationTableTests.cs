@@ -1,5 +1,8 @@
+// MIT License, Copyright 2020 Samu Lang
+
 namespace PrimeMultiplication.Tests.Library
 {
+    using System.Diagnostics.CodeAnalysis;
     using System.Threading.Tasks;
     using FluentAssertions;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -9,13 +12,16 @@ namespace PrimeMultiplication.Tests.Library
     public class MultiplicationTableTests
     {
         [TestMethod]
+        [SuppressMessage("Performance", "CA1814:Prefer jagged arrays over multidimensional", Justification = "This is actually a multidimensional array")]
+        [SuppressMessage("StyleCop.CSharp.SpacingRules", "SA1025:Code should not contain multiple whitespace in a row", Justification = "Abnormal whitespace here elucidates behaviour")]
         public async Task Multiplies_primes()
         {
-            var expected = new int?[,] {
-                { null,  2,  3,   5 },
-                {    2,  4,  6,  10 },
-                {    3,  6,  9 , 15 },
-                {    5, 10, 15 , 25 },
+            var expected = new int?[,]
+            {
+                { null,  2,  3,  5 },
+                {    2,  4,  6, 10 },
+                {    3,  6,  9, 15 },
+                {    5, 10, 15, 25 },
             };
 
             var count = 3;

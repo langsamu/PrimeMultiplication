@@ -1,7 +1,8 @@
+// MIT License, Copyright 2020 Samu Lang
+
 namespace PrimeMultiplication.Tests.Library
 {
     using System;
-    using System.Collections;
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
@@ -14,43 +15,20 @@ namespace PrimeMultiplication.Tests.Library
     public class PrimeGeneratorTests
     {
         [TestMethod]
-        public void Generates_primes()
+        public async Task Generates_primes()
         {
-            var generator = new PrimeGenerator();
-            var first10Primes = generator.Take(10);
+            var count = 10;
+            var expected = new[] { 2, 3, 5, 7, 11, 13, 17, 19, 23, 29 };
+            var actual = new int[count];
 
-            first10Primes.Should().Equal(new[] { 2, 3, 5, 7, 11, 13, 17, 19, 23, 29 });
-        }
+            await using var primes = new PrimeGenerator().GetAsyncEnumerator();
 
-        [TestMethod]
-        public void Can_be_enumerated()
-        {
-            var generator = new PrimeGenerator();
-            var enumerable = (IEnumerable)generator;
-
-            var i = 0;
-            foreach (object prime in enumerable)
+            for (var i = 0; i < count && await primes.MoveNextAsync(); i++)
             {
-                if (i++ == 10)
-                {
-                    break;
-                }
+                actual[i] = primes.Current;
             }
-        }
 
-        [TestMethod]
-        public void Can_be_enumerated_generically()
-        {
-            var generator = new PrimeGenerator();
-
-            var i = 0;
-            foreach (int prime in generator)
-            {
-                if (i++ == 10)
-                {
-                    break;
-                }
-            }
+            actual.Should().Equal(expected);
         }
 
         [TestMethod]
@@ -72,11 +50,11 @@ namespace PrimeMultiplication.Tests.Library
         public void Can_be_cancelled()
         {
             var generator = new PrimeGenerator();
-            var timeout = new CancellationTokenSource(1000).Token;
+            using var timeout = new CancellationTokenSource(1000);
 
             Func<Task> enumerateWithTimeout = async () =>
               {
-                  await foreach (var prime in generator.WithCancellation(timeout))
+                  await foreach (var prime in generator.WithCancellation(timeout.Token))
                   {
                   }
               };
@@ -88,11 +66,11 @@ namespace PrimeMultiplication.Tests.Library
         public async Task Can_throw_when_cancelled()
         {
             var generator = new PrimeGenerator(PrimeGeneratorOptions.ThrowOnCancel);
-            var timeout = new CancellationTokenSource(1).Token;
+            using var timeout = new CancellationTokenSource(1);
 
             Func<Task> enumerateWithTimeout = async () =>
               {
-                  await foreach (var prime in generator.WithCancellation(timeout))
+                  await foreach (var prime in generator.WithCancellation(timeout.Token))
                   {
                   }
               };

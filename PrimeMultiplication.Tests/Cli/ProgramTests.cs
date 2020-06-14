@@ -1,4 +1,6 @@
-﻿namespace PrimeMultiplication.Tests.Cli
+﻿// MIT License, Copyright 2020 Samu Lang
+
+namespace PrimeMultiplication.Tests.Cli
 {
     using System;
     using System.IO;
@@ -19,7 +21,8 @@
          2         4         6        10
          3         6         9        15
          5        10        15        25
-"[2..].Replace("\r\n", Environment.NewLine);
+";
+            expected = expected[2..].Replace("\r\n", Environment.NewLine, StringComparison.InvariantCulture);
 
             using var writer = new StringWriter();
 
@@ -76,7 +79,9 @@ Options:
   --version                  Show version information
   -?, -h, --help             Show help and usage information
 
-"[2..].Replace("\r\n", Environment.NewLine);
+";
+
+            expected = expected[2..].Replace("\r\n", Environment.NewLine, StringComparison.InvariantCulture);
 
             using var writer = new StringWriter();
 

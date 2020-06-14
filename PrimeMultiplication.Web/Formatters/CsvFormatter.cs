@@ -1,5 +1,8 @@
-﻿namespace PrimeMultiplication.Web
+﻿// MIT License, Copyright 2020 Samu Lang
+
+namespace PrimeMultiplication.Web
 {
+    using System.Globalization;
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
@@ -14,7 +17,7 @@
         {
         }
 
-        protected override async Task WriteResponseBodyAsync(MultiplicationTable table, CancellationToken cancellationToken, OutputFormatterWriteContext context, Encoding encoding)
+        protected override async Task WriteResponseBodyAsync(MultiplicationTable table, OutputFormatterWriteContext context, Encoding encoding, CancellationToken cancellationToken)
         {
             using var writer = context.WriterFactory(context.HttpContext.Response.Body, encoding);
 
@@ -28,7 +31,7 @@
                         await writer.WriteAsync(",");
                     }
 
-                    await writer.WriteAsync(cell?.ToString());
+                    await writer.WriteAsync(cell?.ToString(CultureInfo.InvariantCulture));
                 }
 
                 await writer.WriteLineAsync();

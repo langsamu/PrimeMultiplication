@@ -1,8 +1,11 @@
-﻿namespace PrimeMultiplication.Cli
+﻿// MIT License, Copyright 2020 Samu Lang
+
+namespace PrimeMultiplication.Cli
 {
     using System.CommandLine;
     using System.CommandLine.Invocation;
     using System.CommandLine.IO;
+    using System.Diagnostics.CodeAnalysis;
     using System.Threading;
     using System.Threading.Tasks;
     using PrimeMultiplication;
@@ -26,11 +29,12 @@
             this.AddOption(throwOption);
         }
 
+        [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "Out of scope for this demo")]
         private async Task ExecuteAsync(int count, int? timeout, bool throwOnCancel, IConsole console, CancellationToken cancellationToken)
         {
             if (timeout.HasValue)
             {
-                cancellationToken = 
+                cancellationToken =
                     CancellationTokenSource.CreateLinkedTokenSource(
                         cancellationToken,
                         new CancellationTokenSource(timeout.Value).Token).Token;
@@ -46,7 +50,7 @@
             {
                 await foreach (var cell in row)
                 {
-                    console.Out.Write(string.Format("{0, 10}", cell));
+                    console.Out.Write($"{cell,10}");
                 }
 
                 console.Out.WriteLine(); // LF

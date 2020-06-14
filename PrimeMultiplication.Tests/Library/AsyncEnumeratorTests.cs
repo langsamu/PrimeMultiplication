@@ -1,3 +1,5 @@
+// MIT License, Copyright 2020 Samu Lang
+
 namespace PrimeMultiplication.Tests.Library
 {
     using System;
@@ -24,8 +26,8 @@ namespace PrimeMultiplication.Tests.Library
         public async Task Current_throws_after_last()
         {
             var generator = new PrimeGenerator();
-            var timeout = new CancellationTokenSource(1).Token;
-            await using var enumerator = generator.WithCancellation(timeout).GetAsyncEnumerator();
+            using var timeout = new CancellationTokenSource(1);
+            await using var enumerator = generator.WithCancellation(timeout.Token).GetAsyncEnumerator();
 
             // Exhaust it
             while (await enumerator.MoveNextAsync())

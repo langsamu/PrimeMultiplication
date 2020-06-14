@@ -1,4 +1,6 @@
-﻿namespace PrimeMultiplication.Web
+﻿// MIT License, Copyright 2020 Samu Lang
+
+namespace PrimeMultiplication.Web
 {
     using System.Net.Mime;
     using System.Text;
@@ -16,7 +18,7 @@
         {
         }
 
-        protected override async Task WriteResponseBodyAsync(MultiplicationTable table, CancellationToken cancellationToken, OutputFormatterWriteContext context, Encoding encoding)
+        protected override async Task WriteResponseBodyAsync(MultiplicationTable table, OutputFormatterWriteContext context, Encoding encoding, CancellationToken cancellationToken)
         {
             using var writer = XmlWriter.Create(context.WriterFactory(context.HttpContext.Response.Body, encoding), new XmlWriterSettings { Async = true });
 

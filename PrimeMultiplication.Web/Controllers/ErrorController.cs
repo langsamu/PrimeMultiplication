@@ -1,11 +1,20 @@
-﻿namespace PrimeMultiplication.Web
+﻿// MIT License, Copyright 2020 Samu Lang
+
+namespace PrimeMultiplication.Web
 {
     using System.Linq;
     using Microsoft.AspNetCore.Diagnostics;
     using Microsoft.AspNetCore.Mvc;
 
+    /// <summary>
+    /// Represents a friendly error page.
+    /// </summary>
     public class ErrorController : Controller
     {
+        /// <summary>
+        /// An endpoint that generates a friendly error page.
+        /// </summary>
+        /// <returns>HTTP status code 400.</returns>
         [HttpGet("error")]
         public IActionResult Error()
         {

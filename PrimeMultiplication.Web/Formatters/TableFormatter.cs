@@ -1,6 +1,9 @@
-﻿namespace PrimeMultiplication.Web
+﻿// MIT License, Copyright 2020 Samu Lang
+
+namespace PrimeMultiplication.Web
 {
     using System;
+    using System.Diagnostics.CodeAnalysis;
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
@@ -16,6 +19,7 @@
             this.SupportedEncodings.Add(new UTF8Encoding(false));
         }
 
+        [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "Out of scope for this demo")]
         public sealed override async Task WriteResponseBodyAsync(OutputFormatterWriteContext context, Encoding encoding)
         {
             var data = (ApiParameters)context.Object;
@@ -35,10 +39,10 @@
                         new CancellationTokenSource(data.Timeout.Value).Token).Token;
             }
 
-            await this.WriteResponseBodyAsync(table, cancellationToken, context, encoding);
+            await this.WriteResponseBodyAsync(table, context, encoding, cancellationToken);
         }
 
-        protected abstract Task WriteResponseBodyAsync(MultiplicationTable table, CancellationToken cancellationToken, OutputFormatterWriteContext context, Encoding encoding);
+        protected abstract Task WriteResponseBodyAsync(MultiplicationTable table, OutputFormatterWriteContext context, Encoding encoding, CancellationToken cancellationToken);
 
         protected sealed override bool CanWriteType(Type type) =>
             typeof(ApiParameters).IsAssignableFrom(type);

@@ -1,6 +1,10 @@
-﻿namespace PrimeMultiplication.Tests.Web
+﻿// MIT License, Copyright 2020 Samu Lang
+
+namespace PrimeMultiplication.Tests.Web
 {
     using System;
+    using System.Diagnostics.CodeAnalysis;
+    using System.Globalization;
     using System.Linq;
     using System.Net;
     using System.Net.Http;
@@ -20,6 +24,7 @@
         private static HttpClient client;
 
         [ClassInitialize]
+        [SuppressMessage("Usage", "CA1801:Review unused parameters", Justification = "Required by test framework")]
         public static void Initialize(TestContext context)
         {
             factory = new WebApplicationFactory<Startup>();
@@ -34,13 +39,15 @@
         }
 
         [TestMethod]
+        [SuppressMessage("StyleCop.CSharp.SpacingRules", "SA1025:Code should not contain multiple whitespace in a row", Justification = "Abnormal whitespace here elucidates behaviour")]
         public async Task Multiplies_primes()
         {
-            var expected = new[] {
+            var expected = new[]
+            {
                 new int?[] { null,  2,  3,   5 },
                 new int?[] {    2,  4,  6,  10 },
-                new int?[] {    3,  6,  9 , 15 },
-                new int?[] {    5, 10, 15 , 25 },
+                new int?[] {    3,  6,  9, 15 },
+                new int?[] {    5, 10, 15, 25 },
             };
 
             using var response = await client.GetStreamAsync("/multiply/3");
@@ -64,7 +71,7 @@
                     return null;
                 }
 
-                return new int?(int.Parse(cell.TextContent));
+                return new int?(int.Parse(cell.TextContent, CultureInfo.InvariantCulture));
             }
         }
 

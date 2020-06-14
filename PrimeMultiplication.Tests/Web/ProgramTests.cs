@@ -1,6 +1,9 @@
-﻿namespace PrimeMultiplication.Tests.Web
+﻿// MIT License, Copyright 2020 Samu Lang
+
+namespace PrimeMultiplication.Tests.Web
 {
     using System;
+    using System.Globalization;
     using System.IO;
     using System.Threading;
     using FluentAssertions;
@@ -18,15 +21,15 @@
 
             // As if we were running:
             // c:\>program.exe --test-timeout 500
-            async static void main() =>
+            async static void Main() =>
                 await Program.Main(
                     new[]
                     {
                         Program.TestingToken,
-                        500.ToString()
+                        "500",
                     });
 
-            var program = new Thread(main);
+            var program = new Thread(Main);
             program.Start();
             program.Join();
 
