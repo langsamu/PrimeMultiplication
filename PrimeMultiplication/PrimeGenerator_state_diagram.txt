@@ -1,0 +1,86 @@
+@startuml
+	hide empty description
+	skinparam StateFontName Courier
+
+	state "[[https://github.com/langsamu/PrimeMultiplication/blob/a644cba37b9566532961a27a0fd03086a2b03145/PrimeMultiplication/PrimeGenerator.AsyncEnumerator.cs#L68-L83 MoveNextAsync]]" as MoveNext {
+		state "this.candidate = this.current" as SetCandidateToCurrent
+		state "[[https://github.com/langsamu/PrimeMultiplication/blob/a644cba37b9566532961a27a0fd03086a2b03145/PrimeMultiplication/PrimeGenerator.AsyncEnumerator.cs#L59-L60 this.ShouldStop]]" as ShouldStop
+		state "this.candidate++" as IncrementCandidate
+		state "this.current = NotInitialised" as SetCurrentToNotInitialised 
+		state "return false" as MoveNextReturnFalse
+		state "this.current = this.candidate" as SetCurrentToCandidate
+		state "return true" as MoveNextReturnTrue
+		state "[[https://github.com/langsamu/PrimeMultiplication/blob/a644cba37b9566532961a27a0fd03086a2b03145/PrimeMultiplication/PrimeGenerator.AsyncEnumerator.cs#L41-L57 this.IsPrime]]" as IsPrime {
+			state "int divisor = 2, limit = (int)Math.Sqrt(this.candidate)" as Initialise
+			state "divisor <= limit" as Check
+			state "return true" as IsPrimeReturnTrue
+			state "[[https://github.com/langsamu/PrimeMultiplication/blob/a644cba37b9566532961a27a0fd03086a2b03145/PrimeMultiplication/PrimeGenerator.AsyncEnumerator.cs#L85-L91 this.ThrowIfNeeded()]]" as ThrowIfNeeded
+			state "this.candidate % divisor == 0" as Divides
+			state "divisor++" as Increment
+			state "return false" as IsPrimeReturnFalse
+
+			Initialise : Set the first non-trivial divisor.
+			Initialise : Set the upper limit to the square root of the candidate.
+			Check : See if limit has been reached.
+			IsPrimeReturnTrue : Greates divisor doesn't divide
+			IsPrimeReturnTrue : candidate, so this is a prime.
+			ThrowIfNeeded : Throw an exception if required.
+			ThrowIfNeeded : An exception is thrown if
+			ThrowIfNeeded : 1. the generator is configured to throw on cancellation and
+			ThrowIfNeeded : 2. the token requested cancellation.
+			Divides : Checks if dividing candidate by divisor leaves remainder.
+			IsPrimeReturnFalse : No remainder, divisor divides
+			IsPrimeReturnFalse : candidate, this is not a prime.
+			Increment : This divisor doesn't divide candidate without a
+			Increment :  remainder.Increment divisor to check some more.
+
+			[*]                ->      Initialise
+			Initialise         -->     Check
+			Check              --->    ThrowIfNeeded : true
+			Check              --->    IsPrimeReturnTrue : false
+			ThrowIfNeeded      ---->   Divides
+			IsPrimeReturnTrue  ---->   [*]
+			Divides            ----->  IsPrimeReturnFalse : true
+			Divides            ----->  Increment : false
+			Increment          ------> Check
+			IsPrimeReturnFalse ------> [*]
+		}
+
+		SetCandidateToCurrent : Set the proposed next prime to
+		SetCandidateToCurrent : the one found last (initially 1).
+		ShouldStop : Check if the algorithm should stop.
+		ShouldStop : The algorithm stops if
+		ShouldStop : 1. the generator is configured to not throw on cancellation and
+		ShouldStop : 2. the token requested cancellation.
+		IncrementCandidate : Increment the proposed next prime so we can test it.
+		SetCurrentToNotInitialised : Reset to uninitialised state
+		SetCurrentToNotInitialised : so there is no current prime.
+		MoveNextReturnFalse : The asynchronous stream has
+		MoveNextReturnFalse : been cancelled without throwing,
+		MoveNextReturnFalse : so there are no more primes.
+		SetCurrentToCandidate : A new candidate has been 
+		SetCurrentToCandidate : found proven to be a prime,
+		SetCurrentToCandidate : publish it as the current one.
+		MoveNextReturnTrue : Indicate that there are
+		MoveNextReturnTrue : more primes in the stream.
+		IsPrime : Runs the prime test algorithm.
+		
+		[*]                        ->       SetCandidateToCurrent
+		SetCandidateToCurrent      -->      ShouldStop
+		ShouldStop                 --->     SetCurrentToNotInitialised : true
+		ShouldStop                 --->     IncrementCandidate : false
+		IncrementCandidate         ---->    IsPrime
+		SetCurrentToNotInitialised ---->    MoveNextReturnFalse
+		IsPrime                    ----->   SetCurrentToCandidate : true
+		IsPrime                    ----->   ShouldStop : false
+		SetCurrentToCandidate      ------>  MoveNextReturnTrue
+		MoveNextReturnTrue         ------>  [*]
+		MoveNextReturnFalse        -------> [*]
+	}
+
+	MoveNext : Runs the prime generation algorithm.
+
+	[*]      -> MoveNext
+	MoveNext -> [*]
+
+@enduml

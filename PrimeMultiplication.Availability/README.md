@@ -17,4 +17,4 @@ The test contains the following requests:
 - API negotiates 'file extension'
 - UI multiplies primes
 - UI can be cancelled
-- UI can be throw when cancelled
+- UI can throw when cancelled

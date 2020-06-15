@@ -1,0 +1,1 @@
+![State diagram of a prime number generator implemented as an asynchronous stream](./PrimeGenerator_state_diagram.svg)

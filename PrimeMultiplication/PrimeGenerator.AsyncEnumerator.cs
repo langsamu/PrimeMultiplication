@@ -18,6 +18,7 @@ namespace PrimeMultiplication
             private readonly PrimeGeneratorOptions options;
             private readonly CancellationToken cancellationToken;
             private int current = NotInitialised;
+            private int candidate;
 
             internal AsyncEnumerator(PrimeGeneratorOptions options = PrimeGeneratorOptions.None, CancellationToken cancellationToken = default)
             {
@@ -42,11 +43,11 @@ namespace PrimeMultiplication
             {
                 get
                 {
-                    for (int i = 2; i * i <= this.current; i++)
+                    for (int divisor = 2, limit = (int)Math.Sqrt(this.candidate); divisor <= limit; divisor++)
                     {
                         this.ThrowIfNeeded();
 
-                        if (this.current % i == 0)
+                        if (this.candidate % divisor == 0)
                         {
                             return false;
                         }
@@ -67,6 +68,8 @@ namespace PrimeMultiplication
 
             ValueTask<bool> IAsyncEnumerator<int>.MoveNextAsync()
             {
+                this.candidate = this.current;
+
                 do
                 {
                     if (this.ShouldStop)
@@ -75,10 +78,11 @@ namespace PrimeMultiplication
                         return new ValueTask<bool>(false);
                     }
 
-                    this.current++;
+                    this.candidate++;
                 }
                 while (!this.IsPrime);
 
+                this.current = this.candidate;
                 return new ValueTask<bool>(true);
             }
 
