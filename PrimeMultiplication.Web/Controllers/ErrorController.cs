@@ -2,6 +2,7 @@
 
 namespace PrimeMultiplication.Web
 {
+    using System;
     using System.Linq;
     using Microsoft.AspNetCore.Diagnostics;
     using Microsoft.AspNetCore.Mvc;
@@ -20,11 +21,16 @@ namespace PrimeMultiplication.Web
         {
             var handler = this.HttpContext.Features.Get<IExceptionHandlerPathFeature>();
 
-            var pathComponents = handler.Path.Split("/");
-            var count = pathComponents[2];
-            var timeout = pathComponents.Last();
+            if (handler.Error is OperationCanceledException)
+            {
+                var pathComponents = handler.Path.Split("/");
+                var count = pathComponents[2];
+                var timeout = pathComponents.Last();
 
-            return this.BadRequest($"Could not generate {count} primes in {timeout}ms. Try less.");
+                return this.BadRequest($"Could not generate {count} primes in {timeout}ms. Try less.");
+            }
+
+            throw handler.Error;
         }
     }
 }

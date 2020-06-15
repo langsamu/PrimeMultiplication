@@ -22,7 +22,7 @@
 			Initialise : Set the first non-trivial divisor.
 			Initialise : Set the upper limit to the square root of the candidate.
 			Check : See if limit has been reached.
-			IsPrimeReturnTrue : Greates divisor doesn't divide
+			IsPrimeReturnTrue : Greatest divisor doesn't divide
 			IsPrimeReturnTrue : candidate, so this is a prime.
 			ThrowIfNeeded : Throw an exception if required.
 			ThrowIfNeeded : An exception is thrown if

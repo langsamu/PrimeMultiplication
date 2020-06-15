@@ -6,6 +6,7 @@ namespace PrimeMultiplication.Web
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.Mvc;
+    using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
 
@@ -14,9 +15,11 @@ namespace PrimeMultiplication.Web
     [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1600:Elements should be documented", Justification = "Usage is convention based")]
     public class Startup
     {
-        public static void ConfigureServices(IServiceCollection services)
+        private readonly IConfiguration configuration;
+
+        public Startup(IConfiguration configuration)
         {
-            services.AddMvc(ConfigureMvc);
+            this.configuration = configuration;
         }
 
         public static void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -36,6 +39,12 @@ namespace PrimeMultiplication.Web
             {
                 endpoints.MapControllers();
             });
+        }
+
+        public void ConfigureServices(IServiceCollection services)
+        {
+            services.AddApplicationInsightsTelemetry(this.configuration);
+            services.AddMvc(ConfigureMvc);
         }
 
         private static void ConfigureMvc(MvcOptions mvc)
