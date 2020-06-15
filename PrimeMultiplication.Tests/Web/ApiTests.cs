@@ -11,7 +11,10 @@ namespace PrimeMultiplication.Tests.Web
     using System.Threading.Tasks;
     using FluentAssertions;
     using FluentAssertions.Extensions;
+    using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc.Testing;
+    using Microsoft.Net.Http.Headers;
+    using Microsoft.OpenApi.Readers;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using PrimeMultiplication.Web;
 
@@ -48,7 +51,7 @@ namespace PrimeMultiplication.Tests.Web
                 new int?[] {    5, 10, 15, 25 },
             };
 
-            using var response = await client.GetStreamAsync("/api?count=3");
+            using var response = await client.GetStreamAsync("/api/multiply?count=3");
             var actual = await JsonSerializer.DeserializeAsync<int?[][]>(response);
 
             actual.Should().BeEquivalentTo(expected);
@@ -59,20 +62,20 @@ namespace PrimeMultiplication.Tests.Web
         {
             Func<Task> enumerateWithTimeout = async () =>
             {
-                await client.GetStringAsync("/api?count=1000&timeout=1000");
+                await client.GetStringAsync("/api/multiply?count=1000&timeout=1000");
             };
 
             enumerateWithTimeout.ExecutionTime().Should().BeCloseTo(1.Seconds(), 0.5.Seconds());
         }
 
         [TestMethod]
-        [DataRow("/api")]
-        [DataRow("/api?count")]
-        [DataRow("/api?count=")]
-        [DataRow("/api?count=NOTANUMBER")]
-        [DataRow("/api?count=0")]
-        [DataRow("/api?count=1&timeout=0")]
-        [DataRow("/api?count=1&timeout=NOTANUMBER")]
+        [DataRow("/api/multiply")]
+        [DataRow("/api/multiply?count")]
+        [DataRow("/api/multiply?count=")]
+        [DataRow("/api/multiply?count=NOTANUMBER")]
+        [DataRow("/api/multiply?count=0")]
+        [DataRow("/api/multiply?count=1&timeout=0")]
+        [DataRow("/api/multiply?count=1&timeout=NOTANUMBER")]
         public async Task Validates_parameters(string pathAndQuery)
         {
             var response = await client.GetAsync(pathAndQuery);
@@ -86,7 +89,7 @@ namespace PrimeMultiplication.Tests.Web
         [DataRow("csv", "text/csv")]
         public async Task Negotiates_extensions(string extension, string contentType)
         {
-            var pathAndQuery = $"/api.{extension}?count=1";
+            var pathAndQuery = $"/api/multiply.{extension}?count=1";
             var response = await client.GetAsync(pathAndQuery);
 
             response.Content.Headers.ContentType.MediaType.Should().BeEquivalentTo(contentType);
@@ -98,11 +101,53 @@ namespace PrimeMultiplication.Tests.Web
         [DataRow("text/csv")]
         public async Task Negotiates_accept_headers(string mediaType)
         {
-            using var request = new HttpRequestMessage(HttpMethod.Get, "/api?count=1");
+            using var request = new HttpRequestMessage(HttpMethod.Get, "/api/multiply?count=1");
             request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(mediaType));
 
             using var response = await client.SendAsync(request);
             response.Content.Headers.ContentType.MediaType.Should().BeEquivalentTo(mediaType);
+        }
+
+        [TestMethod]
+        public async Task OpenApi_document_is_valid()
+        {
+            using var response = await client.GetAsync($"/openapi.json");
+            var reader = new OpenApiStreamReader();
+
+            using var stream = await response.Content.ReadAsStreamAsync();
+            reader.Read(stream, out var diagnostic);
+
+            diagnostic.Errors.Should().BeEmpty();
+        }
+
+        [TestMethod]
+        public async Task SwaggerUI_works()
+        {
+            var value = await client.GetStringAsync("/openapi");
+
+            value.Should().Contain("SwaggerUIBundle");
+        }
+
+        [TestMethod]
+        public async Task Sends_CORS_headers()
+        {
+            using var request = new HttpRequestMessage(HttpMethod.Options, "/");
+            request.Headers.Add(HeaderNames.Origin, "example.com");
+            request.Headers.Add(HeaderNames.AccessControlRequestHeaders, HeaderNames.ContentType);
+            request.Headers.Add(HeaderNames.AccessControlRequestMethod, HttpMethods.Post);
+
+            using var response = await client.SendAsync(request);
+            var exists = response.Headers.TryGetValues(HeaderNames.AccessControlAllowOrigin, out var values);
+            exists.Should().BeTrue();
+            values.Should().Contain("*");
+
+            exists = response.Headers.TryGetValues(HeaderNames.AccessControlAllowHeaders, out values);
+            exists.Should().BeTrue();
+            values.Should().Contain(HeaderNames.ContentType);
+
+            exists = response.Headers.TryGetValues(HeaderNames.AccessControlAllowMethods, out values);
+            exists.Should().BeTrue();
+            values.Should().Contain(HttpMethods.Post);
         }
     }
 }

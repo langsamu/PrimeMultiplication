@@ -1,0 +1,143 @@
+﻿{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Prime Multiplication API",
+    "description": "This API generates prime multiplication tables using cancellable asynchronous streams.\r\n\r\nFunctionality is also available over a [form UI](/).",
+    "contact": {
+      "name": "Written by Samu Láng",
+      "url": "https://www.linkedin.com/in/langsamu"
+    },
+    "license": {
+      "name": "Released under the MIT License",
+      "url": "https://github.com/langsamu/PrimeMultiplication/blob/master/LICENSE"
+    },
+    "version": "Live"
+  },
+  "servers": [
+    {
+      "url": "https://prime-multiplication.azurewebsites.net/api"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Operations",
+      "description": "Endpoints for generating prime multiplication tables over HTTP"
+    }
+  ],
+  "externalDocs": {
+    "description": "More information in the GitHub README",
+    "url": "https://github.com/langsamu/PrimeMultiplication/blob/master/README.md"
+  },
+  "components": {
+    "responses": {
+      "multiply": {
+        "description": "A prime multiplication table",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/jsonResponse" },
+            "example": [
+              [ null, 2, 3, 5 ],
+              [ 2, 4, 6, 10 ],
+              [ 3, 6, 9, 15 ],
+              [ 5, 10, 15, 25 ]
+            ]
+          },
+          "text/xml": {
+            "schema": { "$ref": "#/components/schemas/string" },
+            "example": "<table>\n  <row>\n    <cell />\n    <cell>2</cell>\n    <cell>3</cell>\n    <cell>5</cell>\n  </row>\n  <row>\n    <cell>2</cell>\n    <cell>4</cell>\n    <cell>6</cell>\n    <cell>10</cell>\n  </row>\n  <row>\n    <cell>3</cell>\n    <cell>6</cell>\n    <cell>9</cell>\n    <cell>15</cell>\n  </row>\n  <row>\n    <cell>5</cell>\n    <cell>10</cell>\n    <cell>15</cell>\n    <cell>25</cell>\n  </row>\n</table>"
+          },
+          "text/csv": {
+            "schema": { "$ref": "#/components/schemas/string" },
+            "example": ",2,3,5\n2,4,6,10\n3,6,9,15\n5,10,15,25"
+          }
+        }
+      }
+    },
+    "parameters": {
+      "extension": {
+        "name": "extension",
+        "in": "path",
+        "description": "A 'file extension' denoting the format of the response",
+        "required": true,
+        "schema": {
+          "enum": [
+            "json",
+            "xml",
+            "csv"
+          ],
+          "type": "string"
+        }
+      },
+      "count": {
+        "name": "count",
+        "description": "The number of primes to generate",
+        "in": "query",
+        "required": true,
+        "schema": {
+          "type": "number",
+          "example": 5
+        }
+      },
+      "timeout": {
+        "name": "timeout",
+        "description": "The time in milliseconds allowed for generating primes",
+        "in": "query",
+        "schema": { "$ref": "#/components/schemas/number" }
+      }
+    },
+    "schemas": {
+      "number": {
+        "type": "number"
+      },
+      "boolean": {
+        "type": "number"
+      },
+      "string": {
+        "type": "string"
+      },
+      "jsonResponse": {
+        "type": "array",
+        "items": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              { "type": "number" },
+              { "type": "null" }
+            ]
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/multiply": {
+      "get": {
+        "operationId": "getMultiply",
+        "tags": [ "Operations" ],
+        "summary": "Generates a prime multiplication table",
+        "parameters": [
+          { "$ref": "#/components/parameters/count" },
+          { "$ref": "#/components/parameters/timeout" }
+        ],
+        "responses": {
+          "200": { "$ref": "#/components/responses/multiply" }
+        }
+      }
+    },
+    "/multiply.{extension}": {
+      "get": {
+        "operationId": "getMultiplyExtension",
+        "tags": [ "Operations" ],
+        "summary": "Generates a prime multiplication table",
+        "parameters": [
+          { "$ref": "#/components/parameters/extension" },
+          { "$ref": "#/components/parameters/count" },
+          { "$ref": "#/components/parameters/timeout" }
+        ],
+        "responses": {
+          "200": { "$ref": "#/components/responses/multiply" }
+        }
+      }
+    }
+  }
+}

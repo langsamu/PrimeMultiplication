@@ -18,3 +18,5 @@ The test contains the following requests:
 - UI multiplies primes
 - UI can be cancelled
 - UI can throw when cancelled
+- Swagger UI
+- OpenApi document
