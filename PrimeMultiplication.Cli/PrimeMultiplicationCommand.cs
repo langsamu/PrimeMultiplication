@@ -2,16 +2,22 @@
 
 namespace PrimeMultiplication.Cli
 {
+    using System;
+    using System.Collections.Generic;
     using System.CommandLine;
     using System.CommandLine.Invocation;
     using System.CommandLine.IO;
     using System.Diagnostics.CodeAnalysis;
+    using System.Globalization;
     using System.Threading;
     using System.Threading.Tasks;
+    using Microsoft.ApplicationInsights;
+    using Microsoft.ApplicationInsights.Extensibility;
     using PrimeMultiplication;
 
     internal class PrimeMultiplicationCommand : RootCommand
     {
+        // TODO: Validate parameters
         internal PrimeMultiplicationCommand()
         {
             this.Description = "Generates a prime multiplication table of <size> optionally within <timeout>";
@@ -32,6 +38,19 @@ namespace PrimeMultiplication.Cli
         [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "Out of scope for this demo")]
         private async Task ExecuteAsync(int count, int? timeout, bool throwOnCancel, IConsole console, CancellationToken cancellationToken)
         {
+            using var telemetryConfiguration = TelemetryConfiguration.CreateDefault();
+            telemetryConfiguration.InstrumentationKey = Program.InstrumentationKey;
+
+            var telemetry = new TelemetryClient(telemetryConfiguration);
+            telemetry.TrackEvent(
+                "CLI executing",
+                new Dictionary<string, string>
+                {
+                    ["count"] = count.ToString(CultureInfo.InvariantCulture),
+                    ["timeout"] = timeout?.ToString(CultureInfo.InvariantCulture),
+                    ["throwOnCancel"] = throwOnCancel.ToString(),
+                });
+
             if (timeout.HasValue)
             {
                 cancellationToken =
@@ -46,14 +65,23 @@ namespace PrimeMultiplication.Cli
 
             var table = new MultiplicationTable(count, options);
 
-            await foreach (var row in table.WithCancellation(cancellationToken))
+            try
             {
-                await foreach (var cell in row)
+                await foreach (var row in table.WithCancellation(cancellationToken))
                 {
-                    console.Out.Write($"{cell,10}");
-                }
+                    await foreach (var cell in row)
+                    {
+                        console.Out.Write($"{cell,10}");
+                    }
 
-                console.Out.WriteLine(); // LF
+                    console.Out.WriteLine(); // LF
+                }
+            }
+            catch (Exception e)
+            {
+                telemetry.TrackException(e);
+
+                throw;
             }
         }
     }

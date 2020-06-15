@@ -43,7 +43,7 @@ namespace PrimeMultiplication.Tests.Cli
                 await Program.Main(new[] { "1000", "--timeout=1000" });
             };
 
-            runWithTimeout.ExecutionTime().Should().BeCloseTo(1.Seconds(), 0.5.Seconds());
+            runWithTimeout.ExecutionTime().Should().BeCloseTo(2.Seconds(), 1.Seconds());
         }
 
         [TestMethod]
