@@ -1,21 +1,9 @@
 ﻿@model (PrimeMultiplication.MultiplicationTable Table, System.Threading.CancellationToken Timeout)
 
-<!DOCTYPE html>
-<html>
-<head>
-    <title></title>
-    <meta name="viewport" content="width=device-width" />
-    <link rel="icon" type="image/svg+xml" href="~/favicon.svg">
+@section head {
     <style>
-        html {
-            font-size: 50px;
-        }
-
-        body {
-            margin: 0;
-        }
-
         table {
+            font-size: 50px;
             border-collapse: collapse;
             text-align: center;
         }
@@ -43,19 +31,16 @@
             left: 0;
         }
     </style>
-    @Html.Raw(JavaScriptSnippet.FullScript)
-</head>
-<body>
-    <table>
-        @await foreach (var row in this.Model.Table.WithCancellation(this.Model.Timeout))
-        {
-            <tr>
-                @await foreach (var cell in row)
-                {
-                    <td>@cell</td>
-                }
-            </tr>
-        }
-    </table>
-</body>
-</html>
+}
+
+<table>
+    @await foreach (var row in this.Model.Table.WithCancellation(this.Model.Timeout))
+    {
+        <tr>
+            @await foreach (var cell in row)
+            {
+                <td>@cell</td>
+            }
+        </tr>
+    }
+</table>

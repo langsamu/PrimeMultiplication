@@ -39,6 +39,14 @@ namespace PrimeMultiplication.Tests.Web
         }
 
         [TestMethod]
+        public async Task Home_page_works()
+        {
+            var value = await client.GetStringAsync("/");
+
+            value.Should().Contain("Prime Multiplication");
+        }
+
+        [TestMethod]
         [SuppressMessage("StyleCop.CSharp.SpacingRules", "SA1025:Code should not contain multiple whitespace in a row", Justification = "Abnormal whitespace here elucidates behaviour")]
         public async Task Multiplies_primes()
         {

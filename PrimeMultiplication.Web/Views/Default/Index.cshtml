@@ -1,0 +1,27 @@
+﻿<section class="jumbotron">
+    <div class="container">
+        <h1 class="display-3">Prime Multiplication</h1>
+        <p class="lead">This application generates prime number multiplication tables.</p>
+        <p>Functionality is also available over an <a href="~/openapi">API</a>.</p>
+        <p>Written by <a href="https://www.linkedin.com/in/langsamu">Samu Láng</a>.</p>
+        <p>Source-code and more information on <a href="https://github.com/langsamu/PrimeMultiplication#readme">GitHub</a>.</p>
+    </div>
+</section>
+
+<section class="container">
+    <h1>Examples</h1>
+    <ul>
+        <li>
+            Generate a multiplication table of <a asp-controller="Multiply" asp-action="Default" asp-route-count="10"><strong>10</strong> primes</a>
+        </li>
+        <li>
+            Generate a multiplication table of <a asp-controller="Multiply" asp-action="Default" asp-route-count="500"><strong>500 primes</strong></a> <span class="text-danger">(long, large response!)</span>
+        </li>
+        <li>
+            Generate a multiplication table of <a asp-controller="Multiply" asp-action="Default" asp-route-count="1000" asp-route-timeout="1"><strong>1000 primes</strong>  or as many as you can in <strong>1 millisecond</strong></a> <span class="text-info">(refresh several times!)</span>
+        </li>
+        <li>
+            Generate a multiplication table of <a asp-controller="Multiply" asp-action="AbruptTimeout" asp-route-count="5000" asp-route-timeout="5000"><strong>5000</strong> primes in <strong>5 seconds</strong> or die trying</a> <span class="text-info">(HTTP 400)</span>
+        </li>
+    </ul>
+</section>
