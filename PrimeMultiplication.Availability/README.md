@@ -2,7 +2,7 @@
 
 This folder contains a WebTest project.
 
-[Availability.webtest](https://github.com/langsamu/PrimeMultiplication/blob/master/PrimeMultiplication.Availability/Availability.webtest) is used for availability monitoring of the web application using Azure Application Insights.
+[Availability.webtest](./Availability.webtest) is used for availability monitoring of the web application using Azure Application Insights.
 
 ## Monitoring results
 Available [on the Azure portal](https://portal.azure.com/#resource/subscriptions/d40c53cc-9981-4d98-a471-35df02d0bdc7/resourceGroups/PrimeMultiplication/providers/microsoft.insights/components/PrimeMultiplication/availability) (requires login).
