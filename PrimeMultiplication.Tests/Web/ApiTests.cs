@@ -65,7 +65,7 @@ namespace PrimeMultiplication.Tests.Web
                 await client.GetStringAsync("/api/multiply?count=1000&timeout=1000");
             };
 
-            enumerateWithTimeout.ExecutionTime().Should().BeCloseTo(1.Seconds(), 0.5.Seconds());
+            enumerateWithTimeout.ExecutionTime().Should().BeLessThan(3.Seconds());
         }
 
         [TestMethod]

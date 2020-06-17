@@ -59,7 +59,7 @@ namespace PrimeMultiplication.Tests.Library
                   }
               };
 
-            enumerateWithTimeout.ExecutionTime().Should().BeCloseTo(1.Seconds(), 0.5.Seconds());
+            enumerateWithTimeout.ExecutionTime().Should().BeLessThan(3.Seconds());
         }
 
         [TestMethod]

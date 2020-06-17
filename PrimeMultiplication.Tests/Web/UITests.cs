@@ -91,7 +91,7 @@ namespace PrimeMultiplication.Tests.Web
                 await client.GetStringAsync("/multiply/1000/stop-after/1000");
             };
 
-            enumerateWithTimeout.ExecutionTime().Should().BeCloseTo(1.Seconds(), 0.5.Seconds());
+            enumerateWithTimeout.ExecutionTime().Should().BeLessThan(3.Seconds());
         }
 
         [TestMethod]
