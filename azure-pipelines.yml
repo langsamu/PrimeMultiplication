@@ -7,61 +7,90 @@ pool:
 variables:
   BuildConfiguration: Release
 
-steps:
-- task: DotNetCoreCLI@2
-  displayName: Restore
-  inputs:
-    command: restore
+stages:
+  - stage: Build
+    jobs:
 
-# Needed to gather code coverage in a usable format
-- task: DotNetCoreCLI@2
-  displayName: Install Coverlet
-  inputs:
-    command: custom
-    custom: add
-    projects: PrimeMultiplication.Tests
-    arguments: package coverlet.msbuild
+      - job: BuildAndTest
+        steps:
 
-# No need to build
-- task: DotNetCoreCLI@2
-  displayName: Remove availability project
-  inputs:
-    command: custom
-    custom: sln
-    arguments: remove PrimeMultiplication.Availability
+        - checkout: self
+          displayName: Checkout
 
-- task: DotNetCoreCLI@2
-  displayName: Build
-  inputs:
-    command: build
-    arguments: --configuration $(BuildConfiguration) --no-restore
+        - task: DotNetCoreCLI@2
+          displayName: Remove availability project
+          inputs:
+            command: custom
+            custom: sln
+            arguments: remove PrimeMultiplication.Availability
 
-- task: DotNetCoreCLI@2
-  displayName: Test
-  inputs:
-    command: test
-    arguments: --configuration $(BuildConfiguration) --no-build /p:CollectCoverage=true /p:CoverletOutput=TestResults/ /p:CoverletOutputFormat=cobertura
+        - task: DotNetCoreCLI@2
+          displayName: Restore
+          inputs:
+            command: restore
 
-- task: PublishCodeCoverageResults@1
-  displayName: Publish code coverage
-  inputs:
-    codeCoverageTool: cobertura
-    summaryFileLocation: $(System.DefaultWorkingDirectory)/**/coverage.cobertura.xml
+        - task: DotNetCoreCLI@2
+          displayName: Install Coverlet
+          inputs:
+            command: custom
+            custom: add
+            projects: PrimeMultiplication.Tests
+            arguments: package coverlet.msbuild
 
-- task: Bash@3
-  displayName: Upload to Codecov
-  inputs:
-    targetType: inline
-    script: bash <(curl -s https://codecov.io/bash)
+        - task: DotNetCoreCLI@2
+          displayName: Build
+          inputs:
+            command: build
+            arguments: --configuration $(BuildConfiguration) --no-restore
 
-- task: DotNetCoreCLI@2
-  displayName: Publish
-  inputs:
-    command: publish
-    publishWebProjects: false
-    projects: PrimeMultiplication.Web
-    arguments: --configuration $(BuildConfiguration) --output $(build.ArtifactStagingDirectory)
-    zipAfterPublish: True
+        - task: DotNetCoreCLI@2
+          displayName: Test
+          inputs:
+            command: test
+            arguments: --configuration $(BuildConfiguration) --no-build /p:CollectCoverage=true /p:CoverletOutput=TestResults/ /p:CoverletOutputFormat=cobertura
 
-- task: PublishBuildArtifacts@1
-  displayName: Publish build
+        - task: PublishCodeCoverageResults@1
+          displayName: Publish code coverage
+          inputs:
+            codeCoverageTool: cobertura
+            summaryFileLocation: $(System.DefaultWorkingDirectory)/**/coverage.cobertura.xml
+
+        - task: Bash@3
+          displayName: Upload to Codecov
+          inputs:
+            targetType: inline
+            script: bash <(curl -s https://codecov.io/bash)
+
+        - task: DotNetCoreCLI@2
+          displayName: Publish web project
+          inputs:
+            command: publish
+            publishWebProjects: false
+            projects: PrimeMultiplication.Web
+            arguments: --configuration $(BuildConfiguration) --output $(build.ArtifactStagingDirectory)/web
+            zipAfterPublish: True
+
+        - publish: $(Build.ArtifactStagingDirectory)/web
+          displayName: Publish build artifact
+          artifact: web
+
+  - stage: Release
+    dependsOn: Build
+    jobs:
+
+    - job: Deploy
+      steps:
+      
+      - checkout: none
+
+      - download: current
+        artifact: web
+
+      - task: AzureRmWebAppDeployment@4
+        displayName: Deploy to Azure app service
+        inputs:
+          ConnectionType: AzureRM
+          azureSubscription: Azure PrimeMultiplication
+          appType: webApp
+          WebAppName: prime-multiplication
+          packageForLinux: $(Pipeline.Workspace)/web/*.zip
