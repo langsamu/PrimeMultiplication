@@ -44,7 +44,7 @@ namespace PrimeMultiplication.Cli
             var telemetry = new TelemetryClient(telemetryConfiguration);
             telemetry.TrackEvent(
                 "CLI executing",
-                new Dictionary<string, string>
+                new Dictionary<string, string?>
                 {
                     ["count"] = count.ToString(CultureInfo.InvariantCulture),
                     ["timeout"] = timeout?.ToString(CultureInfo.InvariantCulture),

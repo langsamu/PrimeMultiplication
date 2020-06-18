@@ -12,33 +12,13 @@ namespace PrimeMultiplication.Tests.Web
     using FluentAssertions;
     using FluentAssertions.Extensions;
     using Microsoft.AspNetCore.Http;
-    using Microsoft.AspNetCore.Mvc.Testing;
     using Microsoft.Net.Http.Headers;
     using Microsoft.OpenApi.Readers;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using PrimeMultiplication.Web;
 
     [TestClass]
-    public class ApiTests
+    public sealed class ApiTests : TestBase
     {
-        private static WebApplicationFactory<Startup> factory;
-        private static HttpClient client;
-
-        [ClassInitialize]
-        [SuppressMessage("Usage", "CA1801:Review unused parameters", Justification = "Required by test framework")]
-        public static void Initialize(TestContext context)
-        {
-            factory = new WebApplicationFactory<Startup>();
-            client = factory.CreateClient();
-        }
-
-        [ClassCleanup]
-        public static void Cleanup()
-        {
-            client.Dispose();
-            factory.Dispose();
-        }
-
         [TestMethod]
         [SuppressMessage("StyleCop.CSharp.SpacingRules", "SA1025:Code should not contain multiple whitespace in a row", Justification = "Abnormal whitespace here elucidates behaviour")]
         public async Task Multiplies_primes()
@@ -51,7 +31,7 @@ namespace PrimeMultiplication.Tests.Web
                 new int?[] {    5, 10, 15, 25 },
             };
 
-            using var response = await client.GetStreamAsync("/api/multiply?count=3");
+            using var response = await this.Client.GetStreamAsync("/api/multiply?count=3");
             var actual = await JsonSerializer.DeserializeAsync<int?[][]>(response);
 
             actual.Should().BeEquivalentTo(expected);
@@ -62,7 +42,7 @@ namespace PrimeMultiplication.Tests.Web
         {
             Func<Task> enumerateWithTimeout = async () =>
             {
-                await client.GetStringAsync("/api/multiply?count=1000&timeout=1000");
+                await this.Client.GetStringAsync("/api/multiply?count=1000&timeout=1000");
             };
 
             enumerateWithTimeout.ExecutionTime().Should().BeLessThan(3.Seconds());
@@ -78,7 +58,7 @@ namespace PrimeMultiplication.Tests.Web
         [DataRow("/api/multiply?count=1&timeout=NOTANUMBER")]
         public async Task Validates_parameters(string pathAndQuery)
         {
-            var response = await client.GetAsync(pathAndQuery);
+            var response = await this.Client.GetAsync(pathAndQuery);
 
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         }
@@ -90,7 +70,7 @@ namespace PrimeMultiplication.Tests.Web
         public async Task Negotiates_extensions(string extension, string contentType)
         {
             var pathAndQuery = $"/api/multiply.{extension}?count=1";
-            var response = await client.GetAsync(pathAndQuery);
+            var response = await this.Client.GetAsync(pathAndQuery);
 
             response.Content.Headers.ContentType.MediaType.Should().BeEquivalentTo(contentType);
         }
@@ -104,14 +84,14 @@ namespace PrimeMultiplication.Tests.Web
             using var request = new HttpRequestMessage(HttpMethod.Get, "/api/multiply?count=1");
             request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(mediaType));
 
-            using var response = await client.SendAsync(request);
+            using var response = await this.Client.SendAsync(request);
             response.Content.Headers.ContentType.MediaType.Should().BeEquivalentTo(mediaType);
         }
 
         [TestMethod]
         public async Task OpenApi_document_is_valid()
         {
-            using var response = await client.GetAsync($"/openapi.json");
+            using var response = await this.Client.GetAsync($"/openapi.json");
             var reader = new OpenApiStreamReader();
 
             using var stream = await response.Content.ReadAsStreamAsync();
@@ -123,7 +103,7 @@ namespace PrimeMultiplication.Tests.Web
         [TestMethod]
         public async Task SwaggerUI_works()
         {
-            var value = await client.GetStringAsync("/openapi");
+            var value = await this.Client.GetStringAsync("/openapi");
 
             value.Should().Contain("SwaggerUIBundle");
         }
@@ -136,7 +116,7 @@ namespace PrimeMultiplication.Tests.Web
             request.Headers.Add(HeaderNames.AccessControlRequestHeaders, HeaderNames.ContentType);
             request.Headers.Add(HeaderNames.AccessControlRequestMethod, HttpMethods.Post);
 
-            using var response = await client.SendAsync(request);
+            using var response = await this.Client.SendAsync(request);
             var exists = response.Headers.TryGetValues(HeaderNames.AccessControlAllowOrigin, out var values);
             exists.Should().BeTrue();
             values.Should().Contain("*");

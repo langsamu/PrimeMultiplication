@@ -7,41 +7,20 @@ namespace PrimeMultiplication.Tests.Web
     using System.Globalization;
     using System.Linq;
     using System.Net;
-    using System.Net.Http;
     using System.Threading;
     using System.Threading.Tasks;
     using AngleSharp.Html.Parser;
     using FluentAssertions;
     using FluentAssertions.Extensions;
-    using Microsoft.AspNetCore.Mvc.Testing;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using PrimeMultiplication.Web;
 
     [TestClass]
-    public class UITests
+    public sealed class UITests : TestBase
     {
-        private static WebApplicationFactory<Startup> factory;
-        private static HttpClient client;
-
-        [ClassInitialize]
-        [SuppressMessage("Usage", "CA1801:Review unused parameters", Justification = "Required by test framework")]
-        public static void Initialize(TestContext context)
-        {
-            factory = new WebApplicationFactory<Startup>();
-            client = factory.CreateClient();
-        }
-
-        [ClassCleanup]
-        public static void Cleanup()
-        {
-            client.Dispose();
-            factory.Dispose();
-        }
-
         [TestMethod]
         public async Task Home_page_works()
         {
-            var value = await client.GetStringAsync("/");
+            var value = await this.Client.GetStringAsync("/");
 
             value.Should().Contain("Prime Multiplication");
         }
@@ -58,7 +37,7 @@ namespace PrimeMultiplication.Tests.Web
                 new int?[] {    5, 10, 15, 25 },
             };
 
-            using var response = await client.GetStreamAsync("/multiply/3");
+            using var response = await this.Client.GetStreamAsync("/multiply/3");
             using var document = await new HtmlParser().ParseDocumentAsync(response, CancellationToken.None);
 
             var actual =
@@ -88,7 +67,7 @@ namespace PrimeMultiplication.Tests.Web
         {
             Func<Task> enumerateWithTimeout = async () =>
             {
-                await client.GetStringAsync("/multiply/1000/stop-after/1000");
+                await this.Client.GetStringAsync("/multiply/1000/stop-after/1000");
             };
 
             enumerateWithTimeout.ExecutionTime().Should().BeLessThan(3.Seconds());
@@ -97,7 +76,7 @@ namespace PrimeMultiplication.Tests.Web
         [TestMethod]
         public async Task Can_throw_when_cancelled()
         {
-            using var response = await client.GetAsync("/multiply/1000/fail-after/1");
+            using var response = await this.Client.GetAsync("/multiply/1000/fail-after/1");
 
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         }
@@ -111,7 +90,7 @@ namespace PrimeMultiplication.Tests.Web
         [DataRow("/multiply/1/fail-after/NOTANUMBER")]
         public async Task Validates_parameters(string pathAndQuery)
         {
-            var response = await client.GetAsync(pathAndQuery);
+            var response = await this.Client.GetAsync(pathAndQuery);
 
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         }
