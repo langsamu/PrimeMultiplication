@@ -1,8 +1,3 @@
-
-
-
-
-
 # Prime Multiplication
 
 An application that generates multiplication tables of prime numbers.
@@ -44,4 +39,13 @@ My focus is to demo an actual service, not to improve the sieve of Eratosthenes.
 7. [Robust test-suite](https://github.com/langsamu/PrimeMultiplication/compare/5a29187347a8b463673eaa08f96cc706eae77b59...1829e071ac3a55038900d5c0a688274c5edbada5) achieves [100% test coverage](https://codecov.io/gh/langsamu/PrimeMultiplication/commit/1829e071ac3a55038900d5c0a688274c5edbada5)
 7. [Continuous deployment to Azure App Service](https://github.com/langsamu/PrimeMultiplication/commit/3bc7ede1218ca77e60c76e2be56658ccd12a9a94)
 9. [CLI telemetry](https://github.com/langsamu/PrimeMultiplication/commit/a644cba37b9566532961a27a0fd03086a2b03145)
- 
+
+### Bonus content
+
+Sieve of Eratosthenes algorithm as an abstract syntax tree in an RDF graph.
+
+- View as [XML](https://github.com/langsamu/GraphEngine/blob/4b301753f40986edb0c6af5259c159033f0b4248/GraphEngine.Tests/Resources/Examples/SieveOfEratosthenes.xml) (XML/RDF)
+- View as [JSON](https://github.com/langsamu/GraphEngine/blob/4b301753f40986edb0c6af5259c159033f0b4248/GraphEngine.Tests/Resources/Examples/SieveOfEratosthenes.json) (JSON-LD)
+- View as [Turtle](https://github.com/langsamu/GraphEngine/blob/4b301753f40986edb0c6af5259c159033f0b4248/GraphEngine.Tests/Resources/Examples/SieveOfEratosthenes.ttl)
+
+Part of my ExpressionRDF side-project, which translates these graphs into [LINQ Expressions](https://docs.microsoft.com/en-us/dotnet/api/system.linq.expressions.expression) that can be comiled and executed.
